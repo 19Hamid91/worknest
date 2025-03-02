@@ -25,6 +25,7 @@
         "vue-loader": "^17.0.0"
     },
     "dependencies": {
+        "@primeuix/themes": "^1.0.0",
         "primeicons": "^7.0.0",
         "primevue": "^4.3.1"
     }
