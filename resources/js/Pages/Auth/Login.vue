@@ -1,12 +1,12 @@
 <script setup>
-import Button from "primevue/button";
-
-import Checkbox from "primevue/checkbox";
+import { watch } from "vue";
+import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 import BreezeGuestLayout from "@/Layouts/Guest.vue";
+import Button from "primevue/button";
+import Checkbox from "primevue/checkbox";
+import Message from "primevue/message";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
-import BreezeValidationErrors from "@/Components/ValidationErrors.vue";
-import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
 
 defineProps({
     canResetPassword: Boolean,
@@ -24,13 +24,22 @@ const submit = () => {
         onFinish: () => form.reset("password"),
     });
 };
+
+Object.keys(form.data()).forEach((field) => {
+    watch(
+        () => form[field],
+        () => {
+            if (form.errors[field]) {
+                form.errors[field] = null;
+            }
+        }
+    );
+});
 </script>
 
 <template>
     <BreezeGuestLayout>
         <Head title="Log in" />
-
-        <BreezeValidationErrors class="mb-4" />
 
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
@@ -47,8 +56,17 @@ const submit = () => {
                         required
                         autofocus
                         autocomplete="username"
+                        :invalid="!!form.errors.email"
+                        fluid
                     />
                     <label for="email">Email</label>
+                    <Message
+                        v-if="form.errors.email"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ form.errors.email }}</Message
+                    >
                 </FloatLabel>
             </div>
 
@@ -61,8 +79,17 @@ const submit = () => {
                         v-model="form.password"
                         required
                         autocomplete="current-password"
+                        :invalid="!!form.errors.password"
+                        fluid
                     />
                     <label for="password">Password</label>
+                    <Message
+                        v-if="form.errors.password"
+                        severity="error"
+                        size="small"
+                        variant="simple"
+                        >{{ form.errors.password }}</Message
+                    >
                 </FloatLabel>
             </div>
 
@@ -90,6 +117,8 @@ const submit = () => {
                     class="ml-4"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
+                    type="submit"
+                    @click="submit"
                 >
                     Log in
                 </Button>
