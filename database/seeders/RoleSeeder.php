@@ -28,6 +28,7 @@ class RoleSeeder extends Seeder
         $superadmin = User::firstOrCreate(
             ['email' => 'worknest@gmail.com'],
             [
+                'username' => 'superadmin',
                 'name' => 'Superadmin',
                 'password' => bcrypt('123'),
             ]
