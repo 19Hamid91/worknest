@@ -9,9 +9,11 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "inertiajs/inertia-laravel": "^0.5.4",
+        "irazasyed/larasupport": "*",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.8",
         "laravel/tinker": "^2.5",
+        "owen-it/laravel-auditing": "^13.7",
         "spatie/laravel-permission": "^5.11",
         "tightenco/ziggy": "^1.0"
     },

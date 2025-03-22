@@ -1,14 +1,17 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted } from "vue";
+import { Head, Link } from "@inertiajs/inertia-vue3";
 import Authenticated from "@/Layouts/Authenticated.vue";
-import Button from "primevue/button";
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import InputText from "primevue/inputtext";
+import {
+    Button,
+    DataTable,
+    Column,
+    IconField,
+    InputIcon,
+    InputText,
+    Toast,
+} from "primevue";
 import { useToast } from "primevue/usetoast";
-import Toast from "primevue/toast";
 
 const toast = useToast();
 const users = ref([]);
@@ -88,13 +91,16 @@ onMounted(() => {
 
 <template>
     <Authenticated>
+        <Head title="User" />
         <Toast />
         <div class="max-w-7xl mx-auto sm:px-4 lg:px-6">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="flex flex-col gap-4 w-full p-6">
                     <div class="flex w-full justify-between items-center">
                         <h1 class="text-2xl">User</h1>
-                        <Button>Add User</Button>
+                        <Link :href="route('user.create')">
+                            <Button> Add User </Button>
+                        </Link>
                     </div>
                     <div class="w-full">
                         <DataTable
@@ -143,6 +149,15 @@ onMounted(() => {
                                 </div>
                             </template>
                             <Column field="id" header="#" sortable></Column>
+                            <Column header="Photo">
+                                <template #body="slotProps">
+                                    <img
+                                        :src="slotProps.data.photo_url"
+                                        :alt="slotProps.data.id"
+                                        class="h-24 w-24 object-cover rounded"
+                                    />
+                                </template>
+                            </Column>
                             <Column
                                 field="name"
                                 header="Name"
@@ -174,11 +189,12 @@ onMounted(() => {
                             </Column>
                             <Column header="Actions">
                                 <template #body="{ data }">
-                                    <Button
-                                        icon="pi pi-pencil"
-                                        class="p-button-text p-button-sm"
-                                        @click="editUser(data)"
-                                    />
+                                    <Link :href="route('user.edit', data.id)">
+                                        <Button
+                                            icon="pi pi-pencil"
+                                            class="p-button-text p-button-sm"
+                                        />
+                                    </Link>
                                     <Button
                                         icon="pi pi-trash"
                                         class="p-button-text p-button-sm p-button-danger"

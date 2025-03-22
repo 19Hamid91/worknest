@@ -7,12 +7,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, \OwenIt\Auditing\Auditable;
 
     /**
      * The attributes that are mass assignable.
@@ -20,9 +22,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'photo',
         'name',
         'email',
         'password',
+        'phone',
+        'username',
     ];
 
     /**
@@ -44,6 +49,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = ['photo_url'];
+
     protected static function boot()
     {
         parent::boot();
@@ -53,5 +60,10 @@ class User extends Authenticatable
                 $user->assignRole(Role::USER);
             }
         });
+    }
+
+    public function getPhotoUrlAttribute()
+    {
+        return $this->photo ? Storage::url($this->photo) : asset('assets/img/default-user.svg');
     }
 }
