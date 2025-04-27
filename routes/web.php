@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [UserController::class, 'create'])->name('user.create');
         Route::post('/', [UserController::class, 'store'])->name('user.store');
         Route::get('/{user}/edit', [UserController::class, 'edit'])->name('user.edit');
+        Route::get('/{user}', [UserController::class, 'show'])->name('user.show');
         Route::patch('/{user}', [UserController::class, 'update'])->name('user.update');
     });
 });

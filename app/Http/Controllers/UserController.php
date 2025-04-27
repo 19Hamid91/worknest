@@ -99,7 +99,6 @@ class UserController extends Controller
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20|regex:/^\+?[0-9]+$/|unique:users,phone,' . $user->id,
-            'password' => 'nullable|string|min:6|confirmed',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
@@ -118,5 +117,20 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return back()->withErrors('error', 'Failed to update user: ' . $th->getMessage());
         }
+    }
+
+    public function show(User $user)
+    {
+        $logs = $user->audits()->with('user')->orderByDesc('created_at')->get()->map(function ($log) {
+            $log->old_values = is_array($log->old_values) ? json_encode($log->old_values) : $log->old_values;
+            $log->new_values = is_array($log->new_values) ? json_encode($log->new_values) : $log->new_values;
+            return $log;
+        });;
+        // dd($logs);
+        return Inertia::render('User/Show', [
+            'user' => $user,
+            'logs' => $logs,
+            'defaultImage' => asset('assets/img/default-user.svg')
+        ]);
     }
 }

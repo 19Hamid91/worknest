@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { Head, Link } from "@inertiajs/inertia-vue3";
 import Authenticated from "@/Layouts/Authenticated.vue";
 import {
@@ -72,10 +72,6 @@ const onSearch = () => {
 const formatDate = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleString();
-};
-
-const editUser = (user) => {
-    console.log("Edit user", user);
 };
 
 const confirmDelete = (id) => {
@@ -187,18 +183,33 @@ onMounted(() => {
                                     {{ formatDate(data.last_login_at) }}
                                 </template>
                             </Column>
-                            <Column header="Actions">
+                            <Column header="Actions" style="min-width: 12rem">
                                 <template #body="{ data }">
+                                    <Link :href="route('user.show', data.id)">
+                                        <Button
+                                            icon="pi pi-eye"
+                                            class="mr-2"
+                                            outlined
+                                            rounded
+                                            severity="info"
+                                        />
+                                    </Link>
                                     <Link :href="route('user.edit', data.id)">
                                         <Button
                                             icon="pi pi-pencil"
-                                            class="p-button-text p-button-sm"
+                                            class="mr-2"
+                                            outlined
+                                            rounded
+                                            severity="warn"
                                         />
                                     </Link>
                                     <Button
                                         icon="pi pi-trash"
-                                        class="p-button-text p-button-sm p-button-danger"
+                                        class="mr-2"
                                         @click="confirmDelete(data.id)"
+                                        outlined
+                                        rounded
+                                        severity="danger"
                                     />
                                 </template>
                             </Column>
