@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,4 +25,11 @@ Route::prefix('user')->group(function () {
     Route::get('/{id}', [UserController::class, 'show']);
     Route::post('/create', [UserController::class, 'store']);
     Route::put('/update/{id}', [UserController::class, 'update']);
+});
+
+Route::prefix('project')->group(function () {
+    Route::get('/all', [ProjectController::class, 'all']);
+    // Route::get('/{id}', [UserController::class, 'show']);
+    // Route::post('/create', [UserController::class, 'store']);
+    // Route::put('/update/{id}', [UserController::class, 'update']);
 });

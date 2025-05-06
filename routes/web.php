@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/{user}', [UserController::class, 'show'])->name('user.show');
         Route::patch('/{user}', [UserController::class, 'update'])->name('user.update');
     });
+
+    Route::resource('project', ProjectController::class);
 });
 
 require __DIR__ . '/auth.php';
