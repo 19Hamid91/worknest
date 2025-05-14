@@ -66,8 +66,8 @@ class ProjectController extends Controller
             'description' => 'required|string|max:500',
         ]);
 
-        $validated['start_date'] = Carbon::parse($validated['start_date'])->toDateString();
-        $validated['end_date'] = Carbon::parse($validated['end_date'])->toDateString();
+        $validated['start_date'] = toIndoDate($validated['start_date']);
+        $validated['end_date'] = toIndoDate($validated['end_date']);
 
         try {
             $project = $this->projectService->createProject($validated);
@@ -86,12 +86,38 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function update() {}
+    public function update(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'description' => 'required|string|max:500',
+        ]);
+
+        $validated['start_date'] = toIndoDate($validated['start_date']);
+        $validated['end_date'] = toIndoDate($validated['end_date']);
+
+        try {
+            $project = $this->projectService->updateProject($project, $validated);
+
+            return redirect()->route('project.index')->with('success', 'Project updated successfully');
+        } catch (\Throwable $th) {
+            return back()->withErrors('error', 'Failed to update project: ' . $th->getMessage());
+        }
+    }
 
     public function show(Project $project)
     {
+        $logs = $project->audits()->with('user')->orderByDesc('created_at')->get()->map(function ($log) {
+            $log->old_values = is_array($log->old_values) ? json_encode($log->old_values) : $log->old_values;
+            $log->new_values = is_array($log->new_values) ? json_encode($log->new_values) : $log->new_values;
+            return $log;
+        });
+
         return Inertia::render('Project/Show', [
-            'project' => $project
+            'project' => $project,
+            'logs' => $logs,
         ]);
     }
 }

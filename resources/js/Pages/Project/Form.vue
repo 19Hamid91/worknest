@@ -18,6 +18,7 @@ import {
 import { useToast } from "primevue/usetoast";
 
 const toast = useToast();
+const firstIndex = ref(0);
 
 const props = defineProps({
     project: {
@@ -239,6 +240,7 @@ function parseJson(str) {
                 </div>
                 <div class="w-full px-4">
                     <DataTable
+                        v-model:first="firstIndex"
                         :value="logs"
                         :rowsPerPageOptions="[5, 10, 20, 50]"
                         paginator
@@ -261,10 +263,14 @@ function parseJson(str) {
                                 Loading data. Please wait...
                             </div>
                         </template>
-                        <Column field="id" header="#" sortable></Column>
+                        <Column header="No">
+                            <template #body="{ index }">
+                                {{ firstIndex + index + 1 }}
+                            </template>
+                        </Column>
                         <Column field="name" header="Project" sortable>
                             <template #body="{ data }">
-                                {{ data.Project.name }}
+                                {{ data.user.name }}
                             </template>
                         </Column>
                         <Column field="event" header="Event" sortable></Column>

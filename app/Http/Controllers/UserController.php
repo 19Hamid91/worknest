@@ -125,8 +125,8 @@ class UserController extends Controller
             $log->old_values = is_array($log->old_values) ? json_encode($log->old_values) : $log->old_values;
             $log->new_values = is_array($log->new_values) ? json_encode($log->new_values) : $log->new_values;
             return $log;
-        });;
-        // dd($logs);
+        });
+
         return Inertia::render('User/Show', [
             'user' => $user,
             'logs' => $logs,

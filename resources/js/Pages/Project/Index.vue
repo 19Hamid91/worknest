@@ -70,8 +70,14 @@ const onSearch = () => {
 };
 
 const formatDate = (date) => {
+    const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    };
+
     if (!date) return "-";
-    return new Date(date).toLocaleString();
+    return new Date(date).toLocaleDateString("en-US", options);
 };
 
 const confirmDelete = (id) => {

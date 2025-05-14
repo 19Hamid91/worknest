@@ -1,10 +1,10 @@
 <script setup>
 import Form from "./Form.vue";
 defineProps({
-    user: Object,
+    project: Object,
 });
 </script>
 
 <template>
-    <Form :isEdit="true" :user="user" :defaultImage="defaultImage" />
+    <Form :isEdit="true" :project="project" :defaultImage="defaultImage" />
 </template>

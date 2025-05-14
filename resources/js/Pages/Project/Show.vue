@@ -1,16 +1,15 @@
 <script setup>
 import Form from "./Form.vue";
 defineProps({
-    user: Object,
+    project: Object,
     logs: Object,
 });
 </script>
 
 <template>
     <Form
-        :isEdit="true"
         :isDisabled="true"
-        :user="user"
+        :project="project"
         :logs="logs"
         :defaultImage="defaultImage"
     />

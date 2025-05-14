@@ -144,7 +144,16 @@ onMounted(() => {
                                     Loading data. Please wait...
                                 </div>
                             </template>
-                            <Column field="id" header="#" sortable></Column>
+                            <Column header="No">
+                                <template #body="{ index }">
+                                    {{
+                                        index +
+                                        1 +
+                                        (lazyParams.page || 0) *
+                                            (lazyParams.rows || rows)
+                                    }}
+                                </template>
+                            </Column>
                             <Column header="Photo">
                                 <template #body="slotProps">
                                     <img
