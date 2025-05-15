@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Status;
 use App\Models\Project;
 use App\Services\ProjectService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -19,7 +19,10 @@ class ProjectController extends Controller
 
     public function index()
     {
-        return Inertia::render('Project/Index');
+        $statuses = Status::values();
+        return Inertia::render('Project/Index', [
+            'statuses' => $statuses
+        ]);
     }
 
     public function all(Request $request)
@@ -119,5 +122,26 @@ class ProjectController extends Controller
             'project' => $project,
             'logs' => $logs,
         ]);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required|exists:projects,id',
+            'status' => 'required|in:Pending,On Progress,Done'
+        ]);
+
+        try {
+            $project = Project::findOrFail($validated['id']);
+            $project->status = $validated['status'];
+            $project->save();
+
+            return response()->json(['message' => 'Project status changed successfully']);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Failed to change project status',
+                'error' => $th->getMessage()
+            ], 500);
+        }
     }
 }

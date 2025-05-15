@@ -29,7 +29,5 @@ Route::prefix('user')->group(function () {
 
 Route::prefix('project')->group(function () {
     Route::get('/all', [ProjectController::class, 'all']);
-    // Route::get('/{id}', [UserController::class, 'show']);
-    // Route::post('/create', [UserController::class, 'store']);
-    // Route::put('/update/{id}', [UserController::class, 'update']);
+    Route::post('/changeStatus', [ProjectController::class, 'changeStatus']);
 });

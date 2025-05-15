@@ -10,6 +10,7 @@ import Aura from "@primeuix/themes/aura";
 import Material from "@primeuix/themes/material";
 import "primeicons/primeicons.css";
 import ToastService from "primevue/toastservice";
+import Tooltip from "primevue/tooltip";
 
 const appName =
     window.document.getElementsByTagName("title")[0]?.innerText || "Laravel";
@@ -28,6 +29,7 @@ createInertiaApp({
                     },
                 },
             })
+            .directive("tooltip", Tooltip)
             .use(ToastService)
             .mixin({ methods: { route } })
             .mount(el);

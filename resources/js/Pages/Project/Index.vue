@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { Head, Link } from "@inertiajs/inertia-vue3";
 import Authenticated from "@/Layouts/Authenticated.vue";
 import {
@@ -10,8 +10,14 @@ import {
     InputIcon,
     InputText,
     Toast,
+    Tag,
+    Popover,
+    RadioButton,
 } from "primevue";
 import { useToast } from "primevue/usetoast";
+defineProps({
+    statuses: Array,
+});
 
 const toast = useToast();
 const data = ref([]);
@@ -21,6 +27,8 @@ const lazyParams = ref({});
 const rows = ref(10);
 const searchValue = ref(null);
 let searchTimeout = null;
+const pop = ref();
+const selectedProject = ref();
 
 const fetchData = async () => {
     loading.value = true;
@@ -80,10 +88,73 @@ const formatDate = (date) => {
     return new Date(date).toLocaleDateString("en-US", options);
 };
 
-const confirmDelete = (id) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-        console.log("Delete user ID:", id);
+const getSeverity = (status) => {
+    switch (status) {
+        case "Pending":
+            return "danger";
+
+        case "Done":
+            return "success";
+
+        case "On Progress":
+            return "info";
+
+        case "renewal":
+            return null;
     }
+};
+
+const displayStatus = (event, project) => {
+    pop.value.hide();
+
+    if (selectedProject.value?.id === project.id) {
+        selectedProject.value = null;
+        hidePopover();
+    } else {
+        selectedProject.value = project;
+
+        nextTick(() => {
+            pop.value.show(event);
+        });
+    }
+};
+
+const updateStatus = async (id, status) => {
+    try {
+        const response = await fetch(`/api/project/changeStatus`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: id,
+                status: status,
+            }),
+        });
+
+        const result = await response.json();
+
+        toast.add({
+            severity: "success",
+            summary: "Updated",
+            detail: result.message,
+            life: 3000,
+        });
+    } catch (error) {
+        console.log("error: " + error);
+        toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: "Failed to change status",
+            life: 3000,
+        });
+    } finally {
+        hidePopover();
+    }
+};
+
+const hidePopover = () => {
+    pop.value.hide();
 };
 
 const truncateText = (text, maxLength = 150) => {
@@ -184,15 +255,25 @@ onMounted(() => {
                                     {{ truncateText(data.description, 70) }}
                                 </template>
                             </Column>
-                            <Column
-                                field="status"
-                                header="Status"
-                                sortable
-                            ></Column>
+                            <Column field="status" header="Status" sortable>
+                                <template #body="slotProps">
+                                    <Tag
+                                        :value="slotProps.data.status"
+                                        :severity="
+                                            getSeverity(slotProps.data.status)
+                                        "
+                                    />
+                                </template>
+                            </Column>
                             <Column header="Actions" style="min-width: 12rem">
-                                <template #body="{ data }">
+                                <template #body="slotProps">
                                     <Link
-                                        :href="route('project.show', data.id)"
+                                        :href="
+                                            route(
+                                                'project.show',
+                                                slotProps.data.id
+                                            )
+                                        "
                                     >
                                         <Button
                                             icon="pi pi-eye"
@@ -200,10 +281,16 @@ onMounted(() => {
                                             outlined
                                             rounded
                                             severity="info"
+                                            v-tooltip.top="'Detail project'"
                                         />
                                     </Link>
                                     <Link
-                                        :href="route('project.edit', data.id)"
+                                        :href="
+                                            route(
+                                                'project.edit',
+                                                slotProps.data.id
+                                            )
+                                        "
                                     >
                                         <Button
                                             icon="pi pi-pencil"
@@ -211,19 +298,66 @@ onMounted(() => {
                                             outlined
                                             rounded
                                             severity="warn"
+                                            v-tooltip.top="'Edit project'"
                                         />
                                     </Link>
                                     <Button
-                                        icon="pi pi-trash"
-                                        class="mr-2"
-                                        @click="confirmDelete(data.id)"
+                                        type="button"
+                                        @click="
+                                            displayStatus(
+                                                $event,
+                                                slotProps.data
+                                            )
+                                        "
+                                        icon="pi pi-sync"
+                                        severity="help"
                                         outlined
                                         rounded
-                                        severity="danger"
-                                    />
+                                        v-tooltip.top="'Change project status'"
+                                    ></Button>
                                 </template>
                             </Column>
                         </DataTable>
+
+                        <!-- popover -->
+                        <Popover ref="pop">
+                            <div class="rounded flex flex-col gap-2">
+                                <div
+                                    class="flex flex-col justify-between items-start gap-2 mb-4"
+                                >
+                                    <div
+                                        v-for="(status, index) in statuses"
+                                        :key="index"
+                                        class="flex items-center gap-2"
+                                    >
+                                        <RadioButton
+                                            name="statuss"
+                                            :value="status"
+                                            v-model="selectedProject.status"
+                                            :inputId="status"
+                                        />
+                                        <Tag
+                                            :severity="getSeverity(status)"
+                                            :for="index"
+                                            >{{ status }}</Tag
+                                        >
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <Button
+                                        icon="pi pi-save"
+                                        :label="'Save'"
+                                        class="flex-auto whitespace-nowrap"
+                                        @click="
+                                            updateStatus(
+                                                selectedProject?.id,
+                                                selectedProject?.status
+                                            )
+                                        "
+                                    ></Button>
+                                </div>
+                            </div>
+                        </Popover>
                     </div>
                 </div>
             </div>
